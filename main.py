@@ -105,7 +105,11 @@ class MainScreen(Screen):
             motor_running = False
             s1.softStop()
         s1.set_speed(1)
-        s1.relative_move(15)
+        s1.relative_move(-15)
+        self.ids.position_label.text = str(s1.get_position_in_units())
+        sleep(10)
+        s1.set_speed(5)
+        s1.relative_move(-10)
         self.ids.position_label.text = str(s1.get_position_in_units())
 
     def admin_action(self):
