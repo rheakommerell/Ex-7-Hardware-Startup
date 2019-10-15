@@ -4,7 +4,6 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.animation import Animation
 
 from pidev.MixPanel import MixPanel
 from pidev.kivy.PassCodeScreen import PassCodeScreen
@@ -12,8 +11,13 @@ from pidev.kivy.PauseScreen import PauseScreen
 from pidev.kivy import DPEAButton
 from pidev.kivy import ImageButton
 
+import spidev
+import os
 from threading import Thread
 from time import sleep
+import RPi.GPIO as GPIO
+from pidev.stepper import stepper
+spi = spidev.SpiDev()
 
 
 MIXPANEL_TOKEN = "x"
@@ -39,40 +43,70 @@ class ProjectNameGUI(App):
 
 Window.clearcolor = (1, 1, 1, 1)  # White
 
-
-class ImageScreen(Screen):
-    def ret(self, widg):
-        anim = Animation(size=(400, 400)) + Animation(size=(80, 80))
-        anim.start(widg)
-        SCREEN_MANAGER.current = MAIN_SCREEN_NAME
+s1 = stepper(port=1)
+s1.setCurrent(8, 10, 10, 10)
+s1.setAccel(0x50)
+s1.setDecel(0x100)
+s1.setMaxSpeed(525)
+s1.setMinSpeed(0)
+s1.setMicroSteps(32)
+s1.steps_per_unit = 518
+s1.setThresholdSpeed(1000)
+s1.setOverCurrent(2000)
+s1.setStallCurrent(2187.5)
+s1.setLowSpeedOpt(False)
 
 class MainScreen(Screen):
     """
     Class to handle the main screen and its associated touch events
     """
+    def start_speed_thread(self):
+        Thread(target=self.speed_update).start()
 
-    def switch(self, curr):
-        if curr == "on":
-            return "off"
+    global need_to_leave
+    need_to_leave = False
+    global motor_running
+    motor_running = False
+    global motor_dir
+    motor_dir = 0
+
+    def speed_update(self):
+        while not need_to_leave:
+            if motor_running:
+                speed = int(self.ids.slider.value)
+                s1.softStop()
+                s1.run(motor_dir, speed)
+            sleep(.1)
+
+    def switch_dir(self):
+        global motor_dir
+        if motor_dir == 0:
+            motor_dir = 1
         else:
-            return "on"
+            motor_dir = 0
+        if motor_running:
+            s1.softStop()
+            s1.run(motor_dir, int(self.ids.slider.value))
 
-    def count(self, c):
-        c_n = int(c) + 1
-        return str(c_n)
-
-    def motor_switch(self, c):
-        if c == "motor on":
-            return "motor off"
+    def off_on(self):
+        global motor_running
+        if motor_running:
+            s1.softStop()
+            motor_running = False
         else:
-            return "motor on"
+            s1.run(motor_dir, int(self.ids.slider.value))
+            motor_running = True
 
-    def pressed(self):
-        """return
-        Function called on button touch event for button with id: testButton
-        :return: None
-        """
-        PauseScreen.pause(pause_scene_name='pauseScene', transition_back_scene='main', text="Test", pause_duration=5)
+    def special(self):
+        global motor_running
+        s1.print_status()
+        self.ids.position_label.text = str(s1.get_position_in_units())
+        if motor_running:
+            motor_running = False
+            s1.softStop()
+        s1.set_speed(1)
+        s1.relative_move(15)
+        self.ids.position_label.text = str(s1.get_position_in_units())
 
     def admin_action(self):
         """
@@ -82,10 +116,18 @@ class MainScreen(Screen):
         """
         SCREEN_MANAGER.current = 'passCode'
 
-    def exit(self, widg):
-        anim = Animation(size=(400, 400)) + Animation(size=(80, 80))
-        anim.start(widg)
-        SCREEN_MANAGER.current = 'exit'
+    @staticmethod
+    def exit_program():
+        """
+        Quit the program. This should free all steppers and do any cleanup necessary
+        :return: None
+        """
+        s1.free_all()
+        spi.close()
+        GPIO.cleanup()
+        global need_to_leave
+        need_to_leave = True
+        quit()
 
 
 class AdminScreen(Screen):
@@ -129,6 +171,9 @@ class AdminScreen(Screen):
         Quit the program. This should free all steppers and do any cleanup necessary
         :return: None
         """
+        s1.free_all()
+        spi.close()
+        GPIO.cleanup()
         quit()
 """
 Widget additions
@@ -137,7 +182,6 @@ Widget additions
 Builder.load_file('main.kv')
 SCREEN_MANAGER.add_widget(MainScreen(name=MAIN_SCREEN_NAME))
 SCREEN_MANAGER.add_widget(PassCodeScreen(name='passCode'))
-SCREEN_MANAGER.add_widget(ImageScreen(name='exit'))
 SCREEN_MANAGER.add_widget(PauseScreen(name='pauseScene'))
 SCREEN_MANAGER.add_widget(AdminScreen(name=ADMIN_SCREEN_NAME))
 
@@ -162,3 +206,7 @@ if __name__ == "__main__":
     # send_event("Project Initialized")
     # Window.fullscreen = 'auto'
     ProjectNameGUI().run()
+s1.free_all()
+spi.close()
+GPIO.cleanup()
+
