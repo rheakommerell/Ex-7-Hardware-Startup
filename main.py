@@ -8,8 +8,9 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from pidev.MixPanel import MixPanel
 from pidev.kivy.PassCodeScreen import PassCodeScreen
 from pidev.kivy.PauseScreen import PauseScreen
-from pidev.kivy import DPEAButton
-from pidev.kivy import ImageButton
+from pidev.kivy.DPEAButton import DPEAButton
+from pidev.kivy.ImageButton import ImageButton
+from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 
 import spidev
 import os
@@ -43,18 +44,8 @@ class ProjectNameGUI(App):
 
 Window.clearcolor = (1, 1, 1, 1)  # White
 
-s1 = stepper(port=1)
-s1.setCurrent(8, 10, 10, 10)
-s1.setAccel(0x50)
-s1.setDecel(0x100)
-s1.setMaxSpeed(525)
-s1.setMinSpeed(0)
-s1.setMicroSteps(32)
-s1.steps_per_unit = 518
-s1.setThresholdSpeed(1000)
-s1.setOverCurrent(2000)
-s1.setStallCurrent(2187.5)
-s1.setLowSpeedOpt(False)
+s0 = stepper(port=0, micro_steps=32, hold_current=20, run_current=20, accel_current=20, deaccel_current=20, steps_per_unit=200, speed=8)
+
 
 class MainScreen(Screen):
     """
@@ -74,8 +65,8 @@ class MainScreen(Screen):
         while not need_to_leave:
             if motor_running:
                 speed = int(self.ids.slider.value)
-                s1.softStop()
-                s1.run(motor_dir, speed)
+                s0.softStop()
+                s0.run(motor_dir, speed)
             sleep(.1)
 
     def switch_dir(self):
@@ -85,32 +76,35 @@ class MainScreen(Screen):
         else:
             motor_dir = 0
         if motor_running:
-            s1.softStop()
-            s1.run(motor_dir, int(self.ids.slider.value))
+            s0.softStop()
+            s0.run(motor_dir, int(self.ids.slider.value))
 
     def off_on(self):
         global motor_running
         if motor_running:
-            s1.softStop()
+            s0.softStop()
             motor_running = False
         else:
-            s1.run(motor_dir, int(self.ids.slider.value))
+            s0.run(motor_dir, int(self.ids.slider.value))
             motor_running = True
 
     def special(self):
         global motor_running
-        s1.print_status()
-        self.ids.position_label.text = str(s1.get_position_in_units())
         if motor_running:
             motor_running = False
-            s1.softStop()
-        s1.set_speed(1)
-        s1.relative_move(-15)
-        self.ids.position_label.text = str(s1.get_position_in_units())
+            s0.softStop()
+        s0.set_speed(1)
+        s0.relative_move(-15)
         sleep(10)
-        s1.set_speed(5)
-        s1.relative_move(-10)
-        self.ids.position_label.text = str(s1.get_position_in_units())
+        s0.set_speed(5)
+        s0.relative_move(-10)
+        sleep(8)
+        s0.goHome()
+        sleep(30)
+        s0.set_speed(8)
+        s0.relative_move(100)
+        sleep(10)
+        s0.goHome()
 
     def admin_action(self):
         """
@@ -126,7 +120,7 @@ class MainScreen(Screen):
         Quit the program. This should free all steppers and do any cleanup necessary
         :return: None
         """
-        s1.free_all()
+        s0.free_all()
         spi.close()
         GPIO.cleanup()
         global need_to_leave
@@ -175,7 +169,7 @@ class AdminScreen(Screen):
         Quit the program. This should free all steppers and do any cleanup necessary
         :return: None
         """
-        s1.free_all()
+        s0.free_all()
         spi.close()
         GPIO.cleanup()
         quit()
@@ -210,7 +204,7 @@ if __name__ == "__main__":
     # send_event("Project Initialized")
     # Window.fullscreen = 'auto'
     ProjectNameGUI().run()
-s1.free_all()
+s0.free_all()
 spi.close()
 GPIO.cleanup()
 

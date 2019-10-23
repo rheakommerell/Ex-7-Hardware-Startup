@@ -166,6 +166,7 @@ s2 = stepper(port=2, micro_steps=32, hold_current=20, run_current=20, accel_curr
 s0.free_all()
 spi.close()
 GPIO.cleanup()
+GPIO.cleanup()
 
 # And if you are need to reboot your RPi or you are done working for the day and want to shutdown
 # the next commands will be helpful
