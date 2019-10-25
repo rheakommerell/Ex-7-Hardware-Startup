@@ -10,7 +10,7 @@ from pidev.kivy.PassCodeScreen import PassCodeScreen
 from pidev.kivy.PauseScreen import PauseScreen
 from pidev.kivy.DPEAButton import DPEAButton
 from pidev.kivy.ImageButton import ImageButton
-from selfupdatinglabel import SelfUpdatingLabel
+from selfupdatinglabeldecimalformat import SelfUpdatingLabel
 
 import spidev
 import os

@@ -1,5 +1,5 @@
 """
-@file selfupdatinglabel.py This file is responsible for holding the SelfUpdatingLabel Class
+@file selfupdatinglabeldecimalformat.py This file is responsible for holding the SelfUpdatingLabel Class
 """
 
 from kivy.uix.label import Label
@@ -22,7 +22,7 @@ class SelfUpdatingLabel(Label):
         self.update_frequency = ObjectProperty(defaultvalue=0.25)
 
         """Call update_text with the user given update_frequency"""
-        Clock.schedule_interval(lambda args: self.update_text(), self.update_frequency)
+        Clock.schedule_interval(lambda args: self.update_text(), 0.1)
 
     def update_text(self) -> None:
         """
