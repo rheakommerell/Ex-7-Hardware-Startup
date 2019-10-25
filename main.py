@@ -10,7 +10,7 @@ from pidev.kivy.PassCodeScreen import PassCodeScreen
 from pidev.kivy.PauseScreen import PauseScreen
 from pidev.kivy.DPEAButton import DPEAButton
 from pidev.kivy.ImageButton import ImageButton
-from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
+from selfupdatinglabel import SelfUpdatingLabel
 
 import spidev
 import os
@@ -89,22 +89,29 @@ class MainScreen(Screen):
             motor_running = True
 
     def special(self):
+        print("Hi")
         global motor_running
         if motor_running:
             motor_running = False
             s0.softStop()
         s0.set_speed(1)
         s0.relative_move(-15)
+        print("0", str(s0.get_position_in_units()))
         sleep(10)
         s0.set_speed(5)
         s0.relative_move(-10)
+        print("1", str(s0.get_position_in_units()))
         sleep(8)
         s0.goHome()
+        print("2", str(s0.get_position_in_units()))
         sleep(30)
         s0.set_speed(8)
         s0.relative_move(100)
+        print("3", str(s0.get_position_in_units()))
         sleep(10)
         s0.goHome()
+        s0.set_as_home()
+        print("4", str(s0.get_position_in_units()))
 
     def admin_action(self):
         """

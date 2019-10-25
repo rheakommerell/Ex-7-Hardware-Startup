@@ -2,6 +2,13 @@
 <project version="4">
   <component name="PublishConfigData" autoUpload="Always" serverName="pi@widget04-pi.local" createEmptyFolders="true" exclude=".svn;.cvs;.idea;.DS_Store;.hg;*.hprof;*.pyc">
     <serverData>
+      <paths name="pi@widget01-pi.local">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/pi/Documents/Ex-8-Rhea" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="pi@widget04-pi.local">
         <serverdata>
           <mappings>

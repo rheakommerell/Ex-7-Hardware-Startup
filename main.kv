@@ -1,4 +1,5 @@
 <MainScreen>:
+    #: import s0 __main__.s0
     name: 'main'
     on_enter: root.start_speed_thread()
     FloatLayout:
@@ -57,6 +58,8 @@
         update_property: s0.get_position_in_units
         update_frequency: 0.1
         update_property_parameters: None
-        center_x: 0.4 * root.width
-        center_y: 0.4 * root.height
+        center_x: 0.2 * root.width
+        center_y: 0.2 * root.height
         color: 1, 1, 1, 1
+        outline_width: self.font_size * 0.1
+        outline_color: 0, 0, 0
