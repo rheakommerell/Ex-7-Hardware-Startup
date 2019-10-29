@@ -16,10 +16,12 @@ class SelfUpdatingLabel(Label):
         """Super the Label constructor to ensure the Label functions properly"""
         super(SelfUpdatingLabel, self).__init__(**kwargs)
 
-        """Set update_property and update_frequency to be appropriate kivy properties"""
+        """Set update_property, update_frequency decimal_places, and label_width to be appropriate kivy properties"""
         self.update_property = ObjectProperty(defaultvalue=None)
         self.update_property_parameters = ObjectProperty(defaultvalue=None)
         self.update_frequency = ObjectProperty(defaultvalue=0.25)
+        self.decimal_places = ObjectProperty(defaultvalue=4)
+        self.label_width = ObjectProperty(defaultvalue=9)
 
         """Call update_text with the user given update_frequency"""
         Clock.schedule_interval(lambda args: self.update_text(), 0.1)
@@ -31,12 +33,13 @@ class SelfUpdatingLabel(Label):
         If the function you are calling includes parameters specify them in update_property_parameters
         :return: None
         """
+        formatting_string = "{:" + str(self.label_width) + "." + str(self.decimal_places) + "f}"
         if self.update_property is None:
             return
         elif callable(self.update_property):  # if the update_property is a method to call
             if self.update_property_parameters is not None:  # call with given parameters
-                self.text = str(self.update_property(self.update_property_parameters))
+                self.text = "{:9.4f}".format(self.update_property(self.update_property_parameters))
             else:
-                self.text = str(self.update_property())
+                self.text = "{:9.4f}".format(self.update_property())
         else:  # Set to whatever was given
-            self.text = str(self.update_property)
+            self.text = "{:9.4f}".format(self.update_property)
