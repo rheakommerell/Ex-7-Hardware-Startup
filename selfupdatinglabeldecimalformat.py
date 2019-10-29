@@ -38,8 +38,8 @@ class SelfUpdatingLabel(Label):
             return
         elif callable(self.update_property):  # if the update_property is a method to call
             if self.update_property_parameters is not None:  # call with given parameters
-                self.text = "{:9.4f}".format(self.update_property(self.update_property_parameters))
+                self.text = "{0:{1}.{2}f}".format(self.update_property(self.update_property_parameters), self.label_width, self.decimal_places)
             else:
-                self.text = "{:9.4f}".format(self.update_property())
+                self.text = "{0:9.4f}".format(self.update_property(), self.label_width, self.decimal_places)
         else:  # Set to whatever was given
-            self.text = "{:9.4f}".format(self.update_property)
+            self.text = "{0:{1}.{2}f}".format(self.update_property, self.label_width, self.decimal_places)

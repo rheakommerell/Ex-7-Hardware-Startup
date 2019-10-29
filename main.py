@@ -89,11 +89,12 @@ class MainScreen(Screen):
             motor_running = True
 
     def special(self):
-        print("Hi")
+        print("Starting")
         global motor_running
         if motor_running:
             motor_running = False
             s0.softStop()
+        s0.set_as_home()
         s0.set_speed(1)
         s0.relative_move(-15)
         print("0", str(s0.get_position_in_units()))
@@ -103,15 +104,17 @@ class MainScreen(Screen):
         print("1", str(s0.get_position_in_units()))
         sleep(8)
         s0.goHome()
-        print("2", str(s0.get_position_in_units()))
         sleep(30)
+        print("2", str(s0.get_position_in_units()))
         s0.set_speed(8)
         s0.relative_move(100)
         print("3", str(s0.get_position_in_units()))
         sleep(10)
         s0.goHome()
-        s0.set_as_home()
+        while s0.is_busy():
+            pass
         print("4", str(s0.get_position_in_units()))
+        s0.set_as_home()
 
     def admin_action(self):
         """
@@ -214,4 +217,3 @@ if __name__ == "__main__":
 s0.free_all()
 spi.close()
 GPIO.cleanup()
-
