@@ -16,20 +16,32 @@ cyprus.set_servo_position(1, 0)
 sleep(1)
 cyprus.set_servo_position(1, 1)
 
+cyprus.set_servo_position(2, 1)
+sleep(5)
+cyprus.set_servo_position(2, 0.5)
+sleep(5)
+cyprus.set_servo_position(2, 0)
+sleep(5)
+cyprus.set_servo_position(2, 0.5)
+sleep(2.5)
+
+for i in range(1, 20)
+
 limit_pressed = False
 
-while True:
-    print("lp " + str(limit_pressed))
-    print("actual " + str(cyprus.read_gpio() & 0b0001))
-    if not limit_pressed & (cyprus.read_gpio() & 0b0001) == 1:      # switch just got pressed
+counter = 0
+
+while counter != 50:
+    if not limit_pressed and (cyprus.read_gpio() & 0b0001) == 0:      # switch just got pressed
         sleep(0.05)                                                 # debounce
-        if cyprus.read_gpio() & 0b0001:
+        if cyprus.read_gpio() & 0b0001 == 0:
             limit_pressed = True
             cyprus.set_servo_position(1, 0)                         # 0 deg if pressed
-    elif limit_pressed & (cyprus.read_gpio() & 0b0001) == 0:        # switch just got unpressed
-        print("it work")
+    elif limit_pressed and ((cyprus.read_gpio() & 0b0001) == 1):        # switch just got unpressed
         sleep(0.05)                                                 # debounce
-        if not (cyprus.read_gpio() & 0b0001):
+        if cyprus.read_gpio() & 0b0001 == 1:
             limit_pressed = False
             cyprus.set_servo_position(1, 1)                         # 180 deg if unpressed
-
+    sleep(0.1)
+    counter += 1
+cyprus.close()
