@@ -80,7 +80,7 @@ cyprus.initialize()  # initialize the RPiMIB and establish communication
 # the following command will set up port 2 (P5) to put out a 100000HZ (100KHz) signal with a 50% high time or duty cycle
 cyprus.set_pwm_values(2, period_value=100000, compare_value=50000, compare_mode=cyprus.LESS_THAN_OR_EQUAL)
 # Motor controller Ex. Cytron MD10C connected to P5, the connected motor would be running ~50% max rpm
-cyprus.set_pwm_values(2, period_value=100000, compare_value=0, compare_mode=cyprus.LESS_THAN_OR_EQUAL) #  Motor OFF
+cyprus.set_pwm_values(2, period_value=100000, compare_value=0, compare_mode=cyprus.LESS_THAN_OR_EQUAL)  # Motor OFF
 cyprus.close()
 
 # To get sensors and other I/O to work with RPiMIB
