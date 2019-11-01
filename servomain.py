@@ -42,21 +42,23 @@ while counter != 50:
     sleep(0.1)
     counter += 1
 '''
-proximate = (cyprus.read_gpio() & 0b0010) == 0
-counter = 0
+proximate = (cyprus.read_gpio() & 0b0001) == 0
 
 print("starting to check; " + str(proximate))
 
-while counter != 100:
+for i in range(1000):
     print(str(proximate))
     print(cyprus.read_gpio() & 0b0001)
     if not proximate and (cyprus.read_gpio() & 0b0001) == 0:        # proximity detected
-        proximate = True
-        cyprus.set_pwm_values(2, period_value=100000, compare_value=100000, compare_mode=cyprus.LESS_THAN_OR_EQUAL)
+        sleep(0.1)
+        if cyprus.read_gpio() & 0b0001 == 0:
+            proximate = True
+            cyprus.set_pwm_values(2, period_value=100000, compare_value=100000, compare_mode=cyprus.LESS_THAN_OR_EQUAL)
     elif proximate and ((cyprus.read_gpio() & 0b0001) == 1):
-        proximate = False
-        cyprus.set_pwm_values(2, period_value=100000, compare_value=0, compare_mode=cyprus.LESS_THAN_OR_EQUAL)
-    sleep(0.1)
-    counter += 1
+        sleep(0.1)
+        if cyprus.read_gpio() & 0b0001 == 1:
+            proximate = False
+            cyprus.set_pwm_values(2, period_value=100000, compare_value=0, compare_mode=cyprus.LESS_THAN_OR_EQUAL)
+    sleep(0.05)
 
 cyprus.close()
